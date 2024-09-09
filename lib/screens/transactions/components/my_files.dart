@@ -1,9 +1,9 @@
 
 import 'package:admin/responsive.dart';
 import 'package:flutter/material.dart';
-import 'package:admin/models/my_files.dart';
+import 'package:admin/models/recent_file.dart';
 import '../../../constants.dart';
-import 'file_info_card.dart';
+import 'package:flutter_svg/svg.dart';
 
 class MyFiles extends StatelessWidget {
   const MyFiles({
@@ -19,7 +19,7 @@ class MyFiles extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              "My Files",
+              "Transactions",
               style: Theme.of(context).textTheme.titleMedium,
             ),
             ElevatedButton.icon(
@@ -37,14 +37,38 @@ class MyFiles extends StatelessWidget {
           ],
         ),
         SizedBox(height: defaultPadding),
-        Responsive(
-          mobile: FileInfoCardGridView(
-            crossAxisCount: _size.width < 650 ? 2 : 4,
-            childAspectRatio: _size.width < 650 ? 1.3 : 1,
+        Container(
+          padding: EdgeInsets.all(defaultPadding),
+          decoration: BoxDecoration(
+            color: secondaryColor,
+            borderRadius: const BorderRadius.all(Radius.circular(10)),
           ),
-          tablet: FileInfoCardGridView(),
-          desktop: FileInfoCardGridView(
-            childAspectRatio: _size.width < 1400 ? 1.1 : 1.4,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: double.infinity,
+                child: DataTable(
+                  columnSpacing: defaultPadding,
+                  // minWidth: 600,
+                  columns: [
+                    DataColumn(
+                      label: Text("File Name"),
+                    ),
+                    DataColumn(
+                      label: Text("Date"),
+                    ),
+                    DataColumn(
+                      label: Text("Size"),
+                    ),
+                  ],
+                  rows: List.generate(
+                    demoRecentFiles.length,
+                        (index) => recentFileDataRow(demoRecentFiles[index]),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ],
@@ -52,29 +76,26 @@ class MyFiles extends StatelessWidget {
   }
 }
 
-class FileInfoCardGridView extends StatelessWidget {
-  const FileInfoCardGridView({
-    Key? key,
-    this.crossAxisCount = 4,
-    this.childAspectRatio = 1,
-  }) : super(key: key);
-
-  final int crossAxisCount;
-  final double childAspectRatio;
-
-  @override
-  Widget build(BuildContext context) {
-    return GridView.builder(
-      physics: NeverScrollableScrollPhysics(),
-      shrinkWrap: true,
-      itemCount: demoMyFiles.length,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: crossAxisCount,
-        crossAxisSpacing: defaultPadding,
-        mainAxisSpacing: defaultPadding,
-        childAspectRatio: childAspectRatio,
+DataRow recentFileDataRow(RecentFile fileInfo) {
+  return DataRow(
+    cells: [
+      DataCell(
+        Row(
+          children: [
+            SvgPicture.asset(
+              fileInfo.icon!,
+              height: 30,
+              width: 30,
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: defaultPadding),
+              child: Text(fileInfo.title!),
+            ),
+          ],
+        ),
       ),
-      itemBuilder: (context, index) => FileInfoCard(info: demoMyFiles[index]),
-    );
-  }
+      DataCell(Text(fileInfo.date!)),
+      DataCell(Text(fileInfo.size!)),
+    ],
+  );
 }
